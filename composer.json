@@ -1,0 +1,20 @@
+{
+    "name": "singiu/wordban",
+    "description": "Sensitive word filter",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Singiu",
+            "email": "junxing.lin@foxmail.com"
+        }
+    ],
+    "require": {
+        "phpunit/phpunit": "^5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Singiu\\WordBan\\": "src/"
+        }
+    }
+}

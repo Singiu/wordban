@@ -12,15 +12,6 @@ namespace Singiu\WordBan;
 class WordBan
 {
     /**
-     * WordBan constructor.
-     * @param array $sensitiveWords
-     */
-    public function __construct($sensitiveWords)
-    {
-        $this->load($sensitiveWords);
-    }
-
-    /**
      * 默认替代字符。
      *
      * @var string
@@ -34,6 +25,8 @@ class WordBan
      */
     protected $_wordsTrieTree = array();
 
+    protected $_wordsTrieTreeLowCase = array();
+
     /**
      * 干扰字符集合。
      *
@@ -42,27 +35,48 @@ class WordBan
     protected $_disturbList = array();
 
     /**
+     * 匹配是否区分大小写。
+     * @var bool
+     */
+    protected $_matchCase = true;
+
+    /**
+     * WordBan constructor.
+     * @param array $sensitiveWords
+     */
+    public function __construct($sensitiveWords)
+    {
+        $this->load($sensitiveWords);
+    }
+
+    /**
      * 以数级的形式装载敏感词库，程序会自动将其转成 Trie Tree 格式。
      * 如果词库过大，这个过程会比较消耗性能，所以建议将结果缓存至 Redis 中，后续直接使用 WordBan::setTrieTree 方法来设置词库。
      *
      * @param array $sensitiveWords
-     * @return array 返回 Trie Tree 格式的敏感词库数组。
+     * @return true 成功返回 true。
      */
     public function load($sensitiveWords = array())
     {
         foreach ($sensitiveWords as $word) {
             if ($word == '') break;
             $now_words = &$this->_wordsTrieTree;
+            $now_words_lower = &$this->_wordsTrieTreeLowCase;
             $word_length = mb_strlen($word);
             for ($i = 0; $i < $word_length; $i++) {
                 $char = mb_substr($word, $i, 1);
+                $char_lower = strtolower($char);
                 if (!isset($now_words[$char])) {
                     $now_words[$char] = false;
                 }
+                if (!isset($now_words_lower[$char_lower])) {
+                    $now_words_lower[$char_lower] = false;
+                }
                 $now_words = &$now_words[$char];
+                $now_words_lower = &$now_words_lower[$char_lower];
             }
         }
-        return $this->_wordsTrieTree;
+        return true;
     }
 
     /**
@@ -70,10 +84,10 @@ class WordBan
      *
      * @param array $trieTree
      */
-    public function setTrieTree($trieTree = array())
-    {
-        $this->_wordsTrieTree = $trieTree;
-    }
+    // public function setTrieTree($trieTree = array())
+    // {
+    //     $this->_wordsTrieTree = $trieTree;
+    // }
 
     /**
      * 设置干扰字符集合。
@@ -96,6 +110,17 @@ class WordBan
     }
 
     /**
+     * 设置程序在进行敏感词匹配时，是否需要对英文字母的大小进行区分。
+     * 默认为 true，即对大小写是敏感的。
+     *
+     * @param boolean $matchCase
+     */
+    public function setMatchCase($matchCase)
+    {
+        $this->_matchCase = $matchCase;
+    }
+
+    /**
      * 扫描并返回检测到的敏感词。
      *
      * @param string $text 要扫描的文本。
@@ -105,6 +130,7 @@ class WordBan
     public function scan($text, &$replaceList = null)
     {
         $scan_result = array();
+        $text = $this->_matchCase ? $text : strtolower($text);
         $text_length = mb_strlen($text);
         for ($i = 0; $i < $text_length; $i++) {
             $word_length = $this->_check($text, $i, $text_length);
@@ -129,7 +155,9 @@ class WordBan
         $replace_list = array();
         $sensitive_words = $this->scan($text, $replace_list);
         if (empty($sensitive_words)) return $text;
-        return str_replace($sensitive_words, $replace_list, $text);
+        return $this->_matchCase
+            ? str_replace($sensitive_words, $replace_list, $text)
+            : str_ireplace($sensitive_words, $replace_list, $text);
     }
 
     /**
@@ -145,7 +173,11 @@ class WordBan
     {
         $flag = false;
         $word_length = 0;
-        $trie_tree = &$this->_wordsTrieTree; // 引用第一层词源。
+        if ($this->_matchCase) {
+            $trie_tree = &$this->_wordsTrieTree;
+        } else {
+            $trie_tree = &$this->_wordsTrieTreeLowCase; // 引用第一层词源。
+        }
         for ($i = $beginIndex; $i < $length; $i++) {
             $word = mb_substr($text, $i, 1);
             if (in_array($word, $this->_disturbList)) { // 检查是不是干扰字，是的话指针往前走一步。

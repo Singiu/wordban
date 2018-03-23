@@ -29,4 +29,12 @@ class WordBanTest extends TestCase
         $result = $this->wordban->escape($this->words);
         self::assertEquals('xx就是xx！xxxx is a bad word!', $result);
     }
+
+    public function testMatchCase()
+    {
+        $this->words = 'Sb就是傻逼！Fuck is a bad word!';
+        $this->wordban->setMatchCase(false);
+        $result = $this->wordban->escape($this->words);
+        self::assertEquals('**就是**！**** is a bad word!', $result);
+    }
 }

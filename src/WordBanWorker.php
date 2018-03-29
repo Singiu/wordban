@@ -43,6 +43,7 @@ class WordBanWorker
     /**
      * WordBan constructor.
      * @param array $sensitiveWords
+     * @throws
      */
     public function __construct($sensitiveWords = null)
     {
@@ -56,7 +57,9 @@ class WordBanWorker
      * 如果词库过大，这个过程会比较消耗性能，所以建议将结果缓存至 Redis 中，后续直接使用 WordBan::setTrieTree 方法来设置词库。
      *
      * @param array $sensitiveWords
+     * @param int $trieTree
      * @return true 成功返回 true。
+     * @throws
      */
     public function load($sensitiveWords = array(), $trieTree = WordBan::LOAD_WORDS)
     {

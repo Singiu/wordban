@@ -1,6 +1,6 @@
 {
     "name": "singiu/wordban",
-    "description": "Sensitive word filter",
+    "description": "简单敏感词过滤组件，采用 DFA 算法。",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -9,14 +9,12 @@
             "email": "junxing.lin@foxmail.com"
         }
     ],
-    "require": {
-    },
     "require-dev": {
         "phpunit/phpunit": "^5.7"
     },
     "autoload": {
         "psr-4": {
-            "Singiu\\WordBan\\": "src/"
+            "Singiu\\": "src/"
         }
     }
 }

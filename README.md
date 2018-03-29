@@ -20,17 +20,17 @@ $sensitive_words = array(
 
 ```php
 
-use Singiu\WordBan\WordBan;
+use Singiu\WordBan;
 
 $text = 'SB就是傻逼！fuck is a bad word!';
 
-$wordban = new WordBan($sensitive_words);
-$result = $wordban->escape($text); // escape 方法会将文本中找到的敏感词使用替代词（默认是*）替换掉。
+WordBan::load($sensitive_words);
+$result = WordBan::escape($text); // escape 方法会将文本中找到的敏感词使用替代词（默认是*）替换掉。
 echo $result; // **就是**！**** is a bad word!
 
 // 你也可以改变默认的替换字符，如换成 'x'。
-$wordban->setEscapeChar('x');
-echo $wordban->escape($text); // xx就是xx！xxxx is a bad word!
+WordBan::setEscapeChar('x');
+echo WordBan::escape($text); // xx就是xx！xxxx is a bad word!
 
 ```
 
@@ -42,13 +42,13 @@ echo $wordban->escape($text); // xx就是xx！xxxx is a bad word!
 
 ```php
 
-use Singiu\WordBan\WordBan;
+use Singiu\WordBan;
 
 $username = $_POST['username'];
 
 $sensitive_words = ['Singiu'];
-$wordban = new WordBan($sensitive_words);
-$bad_words = $wordban->scan($username);
+WordBan::load($sensitive_words);
+$bad_words = WordBan::scan($username);
 
 if (count($bad_words) > 0) {
   echo '这个昵称已经被注册啦！';

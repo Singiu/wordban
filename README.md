@@ -1,6 +1,11 @@
 
 # 简单敏感词过滤组件，采用 DFA 算法。
 
+[![Latest Stable Version](https://poser.pugx.org/singiu/wordban/v/stable)](https://packagist.org/packages/singiu/wordban)
+[![Total Downloads](https://poser.pugx.org/singiu/wordban/downloads)](https://packagist.org/packages/singiu/wordban)
+[![Latest Unstable Version](https://poser.pugx.org/singiu/wordban/v/unstable)](https://packagist.org/packages/singiu/wordban)
+[![License](https://poser.pugx.org/singiu/wordban/license)](https://packagist.org/packages/singiu/wordban)
+
 我们的应用往往要营造良好的交流氛围，或因一些政策上的原因，我们需要限制输出用户的某些输入内容（我们称之为敏感词），但用户的输入是不确定的，一般的我们都会对用户的输入进行二次处理，将一些敏感词进行过滤替换的操作。
 如果你也有这方面的需要的话，那这个包可以很方便的实现这一功能。
 

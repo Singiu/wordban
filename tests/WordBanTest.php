@@ -1,7 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Singiu\WordBan;
+use Singiu\WordBan\WordBan;
 
 class WordBanTest extends TestCase
 {

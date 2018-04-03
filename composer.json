@@ -14,7 +14,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Singiu\\": "src/"
+            "Singiu\\WordBan\\": "src/"
         }
     }
 }

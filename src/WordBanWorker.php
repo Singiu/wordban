@@ -1,6 +1,6 @@
 <?php
 
-namespace Singiu;
+namespace Singiu\WordBan;
 
 /**
  * 敏感词过滤类，使用 DFA 算法。

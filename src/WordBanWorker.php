@@ -66,7 +66,7 @@ class WordBanWorker
         if (!is_array($sensitiveWords) || empty($sensitiveWords)) {
             throw new \Exception('The loaded data is empty!');
         }
-        if ($trieTree === WordBan::LOAD_WORDS && isset($sensitiveWords['Normal']) && isset($sensitiveWords['LowCase'])) {
+        if ($trieTree === WordBan::LOAD_TRIE_TREE && isset($sensitiveWords['Normal']) && isset($sensitiveWords['LowCase'])) {
             $this->_wordsTrieTree = $sensitiveWords['Normal'];
             $this->_wordsTrieTreeLowCase = $sensitiveWords['LowCase'];
         } else {

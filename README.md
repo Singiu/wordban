@@ -56,7 +56,7 @@ WordBan::load($sensitive_words);
 $bad_words = WordBan::scan($username);
 
 if (count($bad_words) > 0) {
-  echo '这个昵称已经被注册啦！';
+  echo '昵称中含有不合适的字符！';
 }
 
 ```

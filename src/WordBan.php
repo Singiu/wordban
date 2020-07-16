@@ -7,6 +7,7 @@ namespace Singiu\WordBan;
  * @method static boolean load(array $sensitiveWords, int $loadType = 1)
  * @method static array scan(string $text)
  * @method static string escape(string $text)
+ * @method static reset()
  * @method static setEscapeChar(string $char)
  * @method static setMatchCase(bool $matchCase)
  */

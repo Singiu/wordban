@@ -1,10 +1,12 @@
-<?php
+<?php /** @noinspection PhpMissingParamTypeInspection */
 
 namespace Singiu\WordBan;
 
+use Exception;
+
 /**
  * 敏感词过滤类，使用 DFA 算法。
- * 敏感词库数据结构为 Trie Tree。
+ * 敏感词库数据结构为 Trie Tree.
  *
  * @author Singiu <junxing.lin@foxmail.com>
  * @date 2018-03-23
@@ -44,9 +46,9 @@ class WordBanWorker
      * @param array $sensitiveWords
      * @throws
      */
-    public function __construct($sensitiveWords = null)
+    public function __construct($sensitiveWords = [])
     {
-        if ($sensitiveWords != null && is_array($sensitiveWords)) {
+        if (is_array($sensitiveWords) && !empty($sensitiveWords)) {
             $this->load($sensitiveWords);
         }
     }
@@ -62,30 +64,44 @@ class WordBanWorker
      */
     protected function _check($text, $beginIndex, $length)
     {
-        $flag = false;
+        $is_end = false; // 是否已经到了一个词的词尾。
         $word_length = 0;
+
+        // 是否大小写敏感。
         if ($this->_matchCase) {
             $trie_tree = &$this->_wordsTrieTree;
         } else {
-            $trie_tree = &$this->_wordsTrieTreeLowCase; // 引用第一层词源。
+            $trie_tree = &$this->_wordsTrieTreeLowCase;
         }
+
         for ($i = $beginIndex; $i < $length; $i++) {
             $word = mb_substr($text, $i, 1);
-            if (in_array($word, $this->_disturbList)) { // 检查是不是干扰字，是的话指针往前走一步。
+
+            // 检查是不是干扰字，是的话指针往前走一步。
+            if (in_array($word, $this->_disturbList)) {
                 $word_length++;
                 continue;
             }
-            if (!isset($trie_tree[$word])) { // 一旦发现没有匹配敏感词，则直接跳出。
+
+            // 一旦发现没有匹配敏感词，则直接跳出。
+            if (!isset($trie_tree[$word])) {
                 break;
             }
+
             $word_length++;
-            if ($trie_tree[$word] !== false) { // 看看是否到达词尾。
-                $trie_tree = &$trie_tree[$word]; // 往深层引用，继续检索。
-            } else {
-                $flag = true;
+
+            // 判断是否是词尾。
+            if (isset($trie_tree[$word]['end']) && $trie_tree[$word]['end'] == true) {
+                $is_end = true;
             }
+
+            // 引用下一层。
+            $trie_tree = &$trie_tree[$word];
         }
-        $flag || $word_length = 0; // 如果检查到最后一个字条还没有匹配到词尾，则当作没有匹配到。
+
+        // 如果检查到最后一个字条还没有匹配到词尾，则当作没有匹配到。
+        $is_end || $word_length = 0;
+
         return $word_length;
     }
 
@@ -128,20 +144,20 @@ class WordBanWorker
      *
      * @param array $sensitiveWords
      * @param int $trieTree
-     * @return true 成功返回 true。
+     * @return true 成功返回TRUE
      * @throws
      */
     public function load($sensitiveWords = [], $trieTree = WordBan::LOAD_WORDS)
     {
         if (!is_array($sensitiveWords) || empty($sensitiveWords)) {
-            throw new \Exception('The loaded data is empty!');
+            throw new Exception('The loaded data is empty!');
         }
         if ($trieTree === WordBan::LOAD_TRIE_TREE && isset($sensitiveWords['Normal']) && isset($sensitiveWords['LowCase'])) {
             $this->_wordsTrieTree = $sensitiveWords['Normal'];
             $this->_wordsTrieTreeLowCase = $sensitiveWords['LowCase'];
         } else {
             foreach ($sensitiveWords as $word) {
-                if ($word == '') break;
+                if (trim($word) == '') break;
                 $now_words = &$this->_wordsTrieTree;
                 $now_words_lower = &$this->_wordsTrieTreeLowCase;
                 $word_length = mb_strlen($word);
@@ -153,6 +169,10 @@ class WordBanWorker
                     }
                     if (!isset($now_words_lower[$char_lower])) {
                         $now_words_lower[$char_lower] = false;
+                    }
+                    if ($i == $word_length - 1) {
+                        $now_words[$char]['end'] = true;
+                        $now_words_lower[$char_lower]['end'] = true;
                     }
                     $now_words = &$now_words[$char];
                     $now_words_lower = &$now_words_lower[$char_lower];
@@ -175,10 +195,10 @@ class WordBanWorker
      * 扫描并返回检测到的敏感词。
      *
      * @param string $text 要扫描的文本。
-     * @param null $replaceList 如果传入此变量，函数会将需要替换的字符组扔进这个变量里，此变量可以在 WordBan::escape 方法中使用。
+     * @param array $replaceList 如果传入此变量，函数会将需要替换的字符组扔进这个变量里，此变量可以在 WordBan::escape 方法中使用。
      * @return array 返回敏感词组成的数组。
      */
-    public function scan($text, &$replaceList = null)
+    public function scan($text, &$replaceList = [])
     {
         $scan_result = [];
         $text = $this->_matchCase ? $text : strtolower($text);

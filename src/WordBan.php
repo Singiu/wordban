@@ -2,14 +2,19 @@
 
 namespace Singiu\WordBan;
 
+use Exception;
+
 /**
  * Class WordBan
+ *
+ * @method static array|null getTrieTree()
  * @method static boolean load(array $sensitiveWords, int $loadType = 1)
- * @method static array scan(string $text)
  * @method static string escape(string $text)
- * @method static reset()
- * @method static setEscapeChar(string $char)
- * @method static setMatchCase(bool $matchCase)
+ * @method static void reset()
+ * @method static array scan(string $text)
+ * @method static void setDisturbList(array $disturbList = [])
+ * @method static void setEscapeChar(string $char)
+ * @method static void setMatchCase(bool $matchCase)
  */
 class WordBan
 {
@@ -25,16 +30,16 @@ class WordBan
      * @param $name
      * @param $arguments
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public static function __callStatic($name, $arguments)
     {
-        if (self::$_worker == null) {
-            self::$_worker = new WordBanWorker();
+        if (static::$_worker == null) {
+            static::$_worker = new WordBanWorker();
         }
-        if (!method_exists(self::$_worker, $name)) {
-            throw new \Exception('Can not found Method: ' . $name);
+        if (!method_exists(static::$_worker, $name)) {
+            throw new Exception('Can not found Method: ' . $name);
         }
-        return call_user_func_array(array(self::$_worker, $name), $arguments);
+        return call_user_func_array([static::$_worker, $name], $arguments);
     }
 }

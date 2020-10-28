@@ -22,6 +22,14 @@ class WordBanTest extends TestCase
         self::assertEquals('**就是**！**** is a bad word!', $result);
     }
 
+    public function testMultiEscape()
+    {
+        $text = 'SB就是傻逼！fuck is a bad word!';
+        WordBan::load(['SB', '傻逼', '傻逼靠', 'fuck']);
+        $result = WordBan::escape($text);
+        self::assertEquals('**就是**！**** is a bad word!', $result);
+    }
+
     public function testReset()
     {
         $text = 'Sb就是傻逼！Fuck is a bad word!';
